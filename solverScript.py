@@ -214,7 +214,7 @@ for i in back_track_path:
     transposed_list.append(var) 
 
 ## ------------------------------------------------------------------------------------------
-#                                Display --> Forward and Backward Path
+#                                Display Forward Path
 ## ------------------------------------------------------------------------------------------
 
 # Forward Path
@@ -233,8 +233,10 @@ for i in back_track_path:
 print('Goal State')
 print('\n')
 
-end_time = time.time()
 
+# Print Execution Time
+
+end_time = time.time()
 print("=======================================================================")
 print("Time to Solve Puzzle:", round((end_time - start_time), 3), "seconds")
 print("=======================================================================")
