@@ -110,9 +110,6 @@ class Node:
 
 def bfs(s, g):
     
-    counter = 0
-    n = 1
-    
     startNode = Node(s, None)
     queue = deque()               # all neighbour states to explore
     visitedList = []              # all visited states
@@ -146,8 +143,7 @@ def bfs(s, g):
 
 def backtrack(current, start):
     print("x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x")
-    # print("G:", str(current.row_to_col_notation()))  # backtrack to start node
-    print("G:", current.state)  # backtrack to start node
+    print("Goal:", current.state)  # backtrack to start node
     while(current.state != start.state):
         current = current.parent
         print(current.state)
