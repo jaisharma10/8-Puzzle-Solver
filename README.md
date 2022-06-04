@@ -20,4 +20,7 @@ In this problem, each tile configuration is a state. The states are altered by s
   <img src = "Images/bfs_tree.PNG" width = "400">
 </p>
 
+### Acknowledgements
 
+ - [BFS - Algorithm](https://www.hackerearth.com/practice/algorithms/graphs/breadth-first-search/tutorial/)
+ - [8 Puzzle Problem](https://www.d.umn.edu/~jrichar4/8puz.html)
