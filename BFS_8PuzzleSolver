@@ -1,0 +1,207 @@
+## ------------------------------------------------------------------------------------------
+#                                  Breath First Search [Empty Map]
+## ------------------------------------------------------------------------------------------
+
+'''
+Author: Jai Sharma
+Task: implement Breath First Search [BFS] algorithm on an empty 10 x 10 map 
+        between a given start and goal node
+        
+--> Path is visualized using pygame. 
+    - Start Node is Red
+    - Goal Node is Green
+    - Solution Path is in Blue/Yellow
+    - Explored Nodes are in White
+--> 4 action steps. Search Sequence 
+    1. Up
+    2. Right
+    3. Down
+    4. Left
+'''
+
+## ------------------------------------------------------------------------------------------
+#                                        Import Libraries
+## ------------------------------------------------------------------------------------------
+
+import time
+import copy
+from collections import deque
+import numpy as np
+
+start_time = time.time()
+print("=======================================================================")
+
+## ------------------------------------------------------------------------------------------
+#                                     Node Class
+## ------------------------------------------------------------------------------------------
+
+class Node:
+    
+    '''
+    Attributes:
+        state: state of the node
+        parent: parent of the node
+    '''
+    
+    def __init__(self, state, parent):
+        self.state = state     # current state of the puzzle
+        self.parent = parent    # stores parent of current state
+        
+    def __repr__(self):         # special method used to represent a class’s objects as string
+        return(f'[ state: {self.state}, parent: {self.parent}]')
+
+    def blankTile(self): # find location of blank tile in current 3x3 matrix as [i,j]
+        for row in range(0,3,1):
+            for col in range(0,3,1):
+                if self.state[row][col] == 0:
+                    return([row,col])
+
+    def moveUp(self, tile): # Swap tile with the tile Above
+        row, col = tile[0], tile[1]
+        if row > 0:  # tile above exists
+            currentNode = Node(copy.deepcopy(self.state), Node(self.state, self.parent))  # parent is also a Node in form (state, parent)
+            # Swap Tiles
+            currentNode.state[row][col], currentNode.state[row-1][col]  = currentNode.state[row-1][col], currentNode.state[row][col]
+            return(currentNode)    # Up is possible
+        else:
+            return(False)       # Up not possible
+    
+    def moveDown(self, tile): # Swap tile with the tile Below
+        row, col = tile[0], tile[1]
+        if row < 2:  # tile below exists
+            currentNode = Node(copy.deepcopy(self.state), Node(self.state, self.parent)) 
+            currentNode.state[row][col], currentNode.state[row+1][col]  = currentNode.state[row+1][col], currentNode.state[row][col]
+            return(currentNode)    # Down is possible         
+        else:
+            return(False)       # Down not possible
+
+    def moveLeft(self, tile): # Swap tile with the tile on Left
+        row, col = tile[0], tile[1]
+        if col > 0:  # tile to left exists
+            currentNode = Node(copy.deepcopy(self.state), Node(self.state, self.parent))  
+            currentNode.state[row][col], currentNode.state[row][col-1]  = currentNode.state[row][col-1], currentNode.state[row][col]
+            return(currentNode)    # Left is possible
+        else:       
+            return(False)       # Left not possible
+
+    def moveRight(self, tile): # Swap tile with the tile on Right
+        row, col = tile[0], tile[1]
+        if col < 2: # tile to right exists
+            currentNode = Node(copy.deepcopy(self.state), Node(self.state, self.parent))  
+            # Swap Tiles
+            currentNode.state[row][col], currentNode.state[row][col+1]  = currentNode.state[row][col+1], currentNode.state[row][col]
+            return(currentNode)    # Right is possible         
+        else:
+            return(False)       # Right not possible
+    
+    def getNeighbours(self, tile): # check for neighbours in the 4 directions
+        neighbours = []
+        up = self.moveUp(tile)
+        down = self.moveDown(tile)
+        left = self.moveLeft(tile)
+        right = self. moveRight(tile)
+        
+        neighbours.append(down) if down else None
+        neighbours.append(right) if right else None
+        neighbours.append(up) if up else None
+        neighbours.append(left) if left else None
+
+        return(neighbours)
+
+## ------------------------------------------------------------------------------------------
+#                                         BFS Function
+## ------------------------------------------------------------------------------------------
+
+def bfs(s, g):
+    
+    startNode = Node(s, None)
+    goalNode = Node(g, None)
+
+    queue = deque()               # all neighbour states to explore
+    visitedList = []              # all visited states
+    queue.append(startNode)       # add start node to queue
+
+
+    while queue != []:
+        currentNode = queue.popleft()  # pop first node in Queue
+        
+        if currentNode.state not in visitedList:         # new state is not goal state and not in visited list
+            visitedList.append(currentNode.state)
+
+            if currentNode.state == g:  # check if goal state reached
+                print("Goal Reached! Backtracked Path is:") 
+                backTrackList = backtrack(currentNode, startNode)  # backtrack list is goal to start
+                backTrackList = backTrackList[::-1]                # reverse list to get --> start to goal
+                print("Start State ----> Goal State")
+                for state in backTrackList:
+                    matrix = list2matrix(state)
+                    print("\n")
+                    print(matrix)
+                break
+            
+            else: # if not goal, add neigbours to queue
+                zeroTile = currentNode.blankTile()                # get location of 0 tile on puzzle
+                Neighbours = currentNode.getNeighbours(zeroTile)  # get neighbours of 0 tile
+                for child in Neighbours:
+                    if child not in queue:
+                        if child.state not in visitedList:
+                            queue.append(child)
+
+    return(backTrackList)
+        
+        
+## ------------------------------------------------------------------------------------------
+#                                       Helper Functions
+## ------------------------------------------------------------------------------------------
+
+def backtrack(current, start):
+    backtrackList = [current.state]   # new list to collect backtracked list
+    while(current.state != start.state):
+        current = current.parent      # go to parent
+        backtrackList.append(current.state)
+    return(backtrackList)
+ 
+def list2matrix(flatList):  # function to convert list to matrix
+    matrix = []
+    while flatList != []:
+        matrix.append(flatList[:3])
+        flatList = flatList[3:]
+    matrix = np.reshape(matrix,(3,3)) #reshaping to a 3 x 3 matrix
+    return(matrix) 
+       
+## ------------------------------------------------------------------------------------------
+#                                       Main Function
+## ------------------------------------------------------------------------------------------
+
+if __name__== "__main__":
+    
+    # Start State
+    s = [ [0,4,2],
+          [5,8,3],
+          [1,7,6] ] 
+    
+    # Goal State
+    g = [ [1,2,3],
+          [4,5,6],
+          [7,8,0] ]
+
+    # checks if inputs are Valid
+    if s == g: # Check if start state is goal state
+        print("Start state is Goal state!!")
+    else: 
+        print("Implementing Breath First Search")
+        backTrackList = bfs(s, g)
+    
+## ------------------------------------------------------------------------------------------
+#                                       Execution Time
+## ------------------------------------------------------------------------------------------
+
+end_time = time.time()
+
+print("\n")
+print("===============================================================================================")
+print("Number of Moves to solve Puzzle:", len(backTrackList), "moves")
+print("===============================================================================================")
+print("Time to Solve 8-Puzzle Problem:", round((end_time - start_time), 5), "seconds")
+print("===============================================================================================")
+print('\n')
